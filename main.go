@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"flag"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -24,16 +24,11 @@ func main() {
 		Registry: reg,
 	}))
 
-	serverPort := 8080
-
-	if strPort, isSet := os.LookupEnv("DEX_PORT"); isSet {
-		if intPort, err := strconv.Atoi(strPort); err == nil {
-			serverPort = intPort
-		}
-	}
+	listenAddress := flag.String("web.listen-address", getEnv("EXPORTER_WEB_LISTEN_ADDRESS", ":8089"), "Address to listen on for web interface and telemetry.")
+	flag.Parse()
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", serverPort),
+		Addr:         *listenAddress,
 		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 120 * time.Second,
@@ -58,11 +53,18 @@ func main() {
 		close(done)
 	}()
 
-	log.Info("Server is ready to handle requests at :", serverPort)
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Could not listen on %d: %v\n", serverPort, err)
+	log.Info("Server is ready to handle requests at :", listenAddress)
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("Could not listen on %d: %v\n", listenAddress, err)
 	}
 
 	<-done
 	log.Info("Server stopped")
+}
+
+func getEnv(key string, defaultVal string) string {
+	if envVal, ok := os.LookupEnv(key); ok {
+		return envVal
+	}
+	return defaultVal
 }
