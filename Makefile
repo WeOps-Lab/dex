@@ -3,7 +3,7 @@
 
 DOCKER_IMAGE_NAME=spx01/dex
 DOCKER_TAG=latest
-BINARY_NAME=dex
+BINARY_NAME=docker_exporter
 BIN_OUT_DIR=bin
 
 
