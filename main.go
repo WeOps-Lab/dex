@@ -11,7 +11,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,7 +24,17 @@ func main() {
 	}))
 
 	listenAddress := flag.String("web.listen-address", getEnv("EXPORTER_WEB_LISTEN_ADDRESS", ":8089"), "Address to listen on for web interface and telemetry.")
+	isDebug := flag.Bool("debug", false, "Output verbose debug information")
+
 	flag.Parse()
+
+	log.SetFormatter(&log.JSONFormatter{})
+	if *isDebug {
+		log.SetLevel(log.DebugLevel)
+		log.Debugln("Enabling debug output")
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
 
 	server := &http.Server{
 		Addr:         *listenAddress,
@@ -53,7 +62,7 @@ func main() {
 		close(done)
 	}()
 
-	log.Info("Server is ready to handle requests at :", listenAddress)
+	log.Infof("Server is ready to handle requests at %v", *listenAddress)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Could not listen on %d: %v\n", listenAddress, err)
 	}
