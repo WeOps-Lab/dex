@@ -77,3 +77,10 @@ func getEnv(key string, defaultVal string) string {
 	}
 	return defaultVal
 }
+
+func boolToString(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
