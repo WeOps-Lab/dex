@@ -45,10 +45,10 @@ func (c *DockerCollector) Collect(ch chan<- prometheus.Metric) {
 
 	var wg sync.WaitGroup
 
-	for _, container := range containers {
+	for _, eachContainer := range containers {
 		wg.Add(1)
 
-		go c.processContainer(container, ch, &wg)
+		go c.processContainer(eachContainer, ch, &wg)
 	}
 	wg.Wait()
 }
