@@ -15,7 +15,6 @@ import (
 )
 
 var baseLabelName = []string{"container_name", "image"}
-var mountLabelName = []string{"container_name", "image", "volume_name", "type", "source", "destination", "driver", "mode", "rw", "propagation"}
 
 type DockerCollector struct {
 	cli *client.Client

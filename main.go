@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
+	"github.com/prometheus/common/version"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,8 +27,14 @@ func main() {
 
 	listenAddress := flag.String("web.listen-address", getEnv("EXPORTER_WEB_LISTEN_ADDRESS", ":8089"), "Address to listen on for web interface and telemetry.")
 	isDebug := flag.Bool("debug", false, "Output verbose debug information")
+	printVersion := flag.Bool("version", false, "print version info.")
 
 	flag.Parse()
+
+	if *printVersion {
+		fmt.Printf(version.Print("docker_exporter"))
+		os.Exit(0)
+	}
 
 	log.SetFormatter(&log.JSONFormatter{})
 	if *isDebug {
